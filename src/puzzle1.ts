@@ -1,8 +1,8 @@
 import { readFileSync } from 'fs';
 import path from 'path';
-import { Puzzle } from '~/puzzles/Puzzle';
+import { Puzzle } from '~/Puzzle';
 
-const inputData = readFileSync(path.join(__dirname, './input.txt'), {
+const inputData = readFileSync(path.join(__dirname, './data/puzzle1.txt'), {
     encoding: 'utf-8',
 }).trim();
 const elfCalories = inputData

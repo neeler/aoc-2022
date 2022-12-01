@@ -33,6 +33,7 @@
   "include": [
     "next-env.d.ts",
     "**/*.ts",
+    "src/**/*.txt",
     "**/*.tsx",
     ".next/types/**/*.ts"
   ],
