@@ -1,4 +1,4 @@
-import { Puzzle } from '~/Puzzle';
+import { Puzzle } from './Puzzle';
 
 type Shape = 'rock' | 'paper' | 'scissors';
 const shapeScores: Record<Shape, number> = {

@@ -1,4 +1,4 @@
-import { Puzzle } from '~/Puzzle';
+import { Puzzle } from './Puzzle';
 
 export const puzzle1 = new Puzzle({
     day: 1,

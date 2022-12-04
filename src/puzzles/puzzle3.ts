@@ -1,4 +1,4 @@
-import { Puzzle } from '~/Puzzle';
+import { Puzzle } from './Puzzle';
 
 interface ItemGroupAnalysis {
     items: string[];
