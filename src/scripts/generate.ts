@@ -1,7 +1,7 @@
 import { writeFileSync, readdirSync } from 'fs';
 import path from 'path';
 
-const dataFolder = path.join(__dirname, '../data');
+const dataFolder = path.join(__dirname, '../../data');
 const puzzleFolder = path.join(__dirname, '../puzzles');
 
 /** Figure out next puzzle number **/

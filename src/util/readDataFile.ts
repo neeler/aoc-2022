@@ -3,7 +3,7 @@ import path from 'path';
 
 export function readDataFile(fileName: string) {
     try {
-        return readFileSync(path.join(__dirname, '../data', fileName), {
+        return readFileSync(path.join(__dirname, '../../data', fileName), {
             encoding: 'utf-8',
         }).trim();
     } catch {
