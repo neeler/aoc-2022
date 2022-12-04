@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Solutions for Advent of Code 2022",
   "scripts": {
+    "generate": "node -r @swc-node/register src/scripts/generate.ts",
     "dev": "nodemon ./src/index.ts",
     "prebuild": "npm run clean",
     "build": "swc src -d dist",
