@@ -26,6 +26,7 @@ export const puzzle2 = new Puzzle({
     day: 2,
     processFile: (fileData) => {
         return fileData
+            .trim()
             .split('\n')
             .map(
                 (row) => row.split(' ') as [FirstColumnDatum, SecondColumnDatum]

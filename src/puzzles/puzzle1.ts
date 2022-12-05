@@ -4,6 +4,7 @@ export const puzzle1 = new Puzzle({
     day: 1,
     processFile: (fileData) =>
         fileData
+            .trim()
             .replace(/\s/g, ',')
             .split(',,')
             .map((stringGroup) =>
