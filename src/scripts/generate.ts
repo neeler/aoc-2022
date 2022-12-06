@@ -3,6 +3,7 @@ import path from 'path';
 
 const dataFolder = path.join(__dirname, '../../data');
 const puzzleFolder = path.join(__dirname, '../puzzles');
+const srcFolder = path.join(__dirname, '..');
 
 /** Figure out next puzzle number **/
 const existingDataFiles = readdirSync(dataFolder);
@@ -23,7 +24,7 @@ export const puzzle${nextPuzzle} = new Puzzle({
     day: ${nextPuzzle},
     processFile: (fileData) => fileData.split('\\n'),
     part1: (data) => {
-        //
+        console.log(data);
     },
     part2: (data) => {
         //
@@ -37,5 +38,20 @@ writeFileSync(
         { length: nextPuzzle },
         (v, i) => `export { puzzle${i + 1} } from './puzzle${i + 1}';`
     ).join('\n')}
+`
+);
+writeFileSync(
+    path.join(srcFolder, 'index.ts'),
+    `import {
+${Array.from({ length: nextPuzzle }, (v, i) => `    puzzle${i + 1},`).join(
+    '\n'
+)}
+} from '~/puzzles';
+    
+${Array.from(
+    { length: nextPuzzle - 1 },
+    (v, i) => `// puzzle${i + 1}.run();`
+).join('\n')}
+puzzle${nextPuzzle}.run({ testExample: true });
 `
 );
