@@ -20,7 +20,7 @@ export class Puzzle<TData> {
         );
     }
 
-    run({ testExample = false }: { testExample?: boolean } = {}) {
+    async run({ testExample = false }: { testExample?: boolean } = {}) {
         console.log(`
 ***************************************************  
 *         [Advent of Code 2022]                   *
@@ -32,7 +32,9 @@ export class Puzzle<TData> {
 *         Part 1                                  *
 *                                                 *
 *         Example:                                *
-*         ${this.config.part1(this.exampleData) ?? 'Not solved yet...'}${
+*         ${
+            (await this.config.part1(this.exampleData)) ?? 'Not solved yet...'
+        }${
             testExample
                 ? ''
                 : `
@@ -41,7 +43,7 @@ export class Puzzle<TData> {
 *         ${
                       testExample
                           ? 'Testing example...'
-                          : this.config.part1(this.puzzleData) ??
+                          : (await this.config.part1(this.puzzleData)) ??
                             'Not solved yet...'
                   }`
         }
@@ -51,13 +53,15 @@ export class Puzzle<TData> {
 *         Part 2                                  *
 *                                                 *
 *         Example:                                *
-*         ${this.config.part2(this.exampleData) ?? 'Not solved yet...'}${
+*         ${
+            (await this.config.part2(this.exampleData)) ?? 'Not solved yet...'
+        }${
             testExample
                 ? ''
                 : `
 *                                                 *
 *         Answer:                                 *
-*         ${this.config.part2(this.puzzleData) ?? 'Not solved yet...'}`
+*         ${(await this.config.part2(this.puzzleData)) ?? 'Not solved yet...'}`
         }   
 *                                                 *
 ***************************************************
