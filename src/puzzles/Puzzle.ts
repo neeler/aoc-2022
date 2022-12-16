@@ -3,7 +3,9 @@ import { readDataFile } from '~/util/readDataFile';
 interface PuzzleConfig<TData> {
     day: number;
     processFile: (fileData: string) => TData;
+    example1?: (data: TData) => any;
     part1: (data: TData) => any;
+    example2?: (data: TData) => any;
     part2: (data: TData) => any;
 }
 
@@ -20,7 +22,10 @@ export class Puzzle<TData> {
         );
     }
 
-    async run({ testExample = false }: { testExample?: boolean } = {}) {
+    async run({
+        example = false,
+        mainProblem = true,
+    }: { example?: boolean; mainProblem?: boolean } = {}) {
         console.log(`
 ***************************************************  
 *         [Advent of Code 2022]                   *
@@ -31,37 +36,47 @@ export class Puzzle<TData> {
 *                                                 *
 *         Part 1                                  *
 *                                                 *
+${
+    example
+        ? `*
 *         Example:                                *
 *         ${
-            (await this.config.part1(this.exampleData)) ?? 'Not solved yet...'
-        }${
-            testExample
-                ? ''
-                : `
+              (await (this.config.example1 ?? this.config.part1)(
+                  this.exampleData
+              )) ?? 'Not solved yet...'
+          }`
+        : ''
+}${
+            mainProblem
+                ? `
 *                                                 *
 *         Answer:                                 *
-*         ${
-                      testExample
-                          ? 'Testing example...'
-                          : (await this.config.part1(this.puzzleData)) ??
-                            'Not solved yet...'
-                  }`
+*         ${(await this.config.part1(this.puzzleData)) ?? 'Not solved yet...'}`
+                : ''
         }
 *                                                 *
 ** * * * * * * * * * * * * * * * * * * * * * * * **
 *                                                 *
 *         Part 2                                  *
 *                                                 *
+${
+    example
+        ? `*         
 *         Example:                                *
 *         ${
-            (await this.config.part2(this.exampleData)) ?? 'Not solved yet...'
-        }${
-            testExample
-                ? ''
-                : `
+              (await (this.config.example2 ?? this.config.part2)(
+                  this.exampleData
+              )) ?? 'Not solved yet...'
+          }`
+        : ''
+}
+*         ${
+            mainProblem
+                ? `
 *                                                 *
 *         Answer:                                 *
 *         ${(await this.config.part2(this.puzzleData)) ?? 'Not solved yet...'}`
+                : ''
         }   
 *                                                 *
 ***************************************************

@@ -52,6 +52,6 @@ ${Array.from(
     { length: nextPuzzle - 1 },
     (v, i) => `// puzzle${i + 1}.run();`
 ).join('\n')}
-puzzle${nextPuzzle}.run({ testExample: true });
+puzzle${nextPuzzle}.run({ example: true, mainProblem: false });
 `
 );
