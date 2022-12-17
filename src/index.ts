@@ -32,7 +32,4 @@ import {
 // puzzle13.run();
 // puzzle14.run();
 // puzzle15.run();
-puzzle16.run({
-    example: true,
-    mainProblem: true,
-});
+// puzzle16.run();
