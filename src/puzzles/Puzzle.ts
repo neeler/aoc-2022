@@ -3,7 +3,10 @@ import { readDataFile } from '~/util/readDataFile';
 
 interface PuzzleConfig<TData> {
     day: number;
-    processFile: (fileData: string) => TData;
+    processFile: (
+        fileData: string,
+        options: { example?: boolean; puzzle?: boolean }
+    ) => TData;
     example1?: (data: TData) => any;
     part1: (data: TData) => any;
     example2?: (data: TData) => any;
@@ -18,10 +21,12 @@ export class Puzzle<TData> {
 
     constructor(private readonly config: PuzzleConfig<TData>) {
         this.exampleData = this.config.processFile(
-            readDataFile(`puzzle${config.day}-example.txt`)
+            readDataFile(`puzzle${config.day}-example.txt`),
+            { example: true }
         );
         this.puzzleData = this.config.processFile(
-            readDataFile(`puzzle${config.day}-input.txt`)
+            readDataFile(`puzzle${config.day}-input.txt`),
+            { puzzle: true }
         );
     }
 
