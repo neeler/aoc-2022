@@ -11,29 +11,31 @@ interface PuzzleConfig<TData> {
     part1: (data: TData) => any;
     example2?: (data: TData) => any;
     part2: (data: TData) => any;
+    skipExample?: boolean;
     skipPart1?: boolean;
     skipPart2?: boolean;
 }
 
 export class Puzzle<TData> {
-    private readonly exampleData: TData;
-    private readonly puzzleData: TData;
-
-    constructor(private readonly config: PuzzleConfig<TData>) {
-        this.exampleData = this.config.processFile(
-            readDataFile(`puzzle${config.day}-example.txt`),
-            { example: true }
-        );
-        this.puzzleData = this.config.processFile(
-            readDataFile(`puzzle${config.day}-input.txt`),
-            { puzzle: true }
-        );
-    }
+    constructor(private readonly config: PuzzleConfig<TData>) {}
 
     async run({
         example = false,
         mainProblem = true,
     }: { example?: boolean; mainProblem?: boolean } = {}) {
+        const exampleData = example
+            ? this.config.processFile(
+                  readDataFile(`puzzle${this.config.day}-example.txt`),
+                  { example: true }
+              )
+            : undefined;
+        const puzzleData = mainProblem
+            ? this.config.processFile(
+                  readDataFile(`puzzle${this.config.day}-input.txt`),
+                  { puzzle: true }
+              )
+            : undefined;
+
         const timer = new Timer();
         console.log(`
 ***************************************************  
@@ -43,10 +45,10 @@ export class Puzzle<TData> {
             .padEnd(2, ' ')}                               *
 ** * * * * * * * * * * * * * * * * * * * * * * * **
 `);
-        if (!this.config.skipPart1 && example) {
+        if (!this.config.skipPart1 && exampleData) {
             const result =
                 (await (this.config.example1 ?? this.config.part1)(
-                    this.exampleData
+                    exampleData
                 )) ?? 'Not solved yet...';
             console.log(`
 ** * * * * * * * * * * * * * * * * * * * * * * * **
@@ -60,11 +62,10 @@ export class Puzzle<TData> {
 ** * * * * * * * * * * * * * * * * * * * * * * * **
 `);
         }
-        if (!this.config.skipPart1 && mainProblem) {
+        if (!this.config.skipPart1 && puzzleData) {
             timer.reset();
             const result =
-                (await this.config.part1(this.puzzleData)) ??
-                'Not solved yet...';
+                (await this.config.part1(puzzleData)) ?? 'Not solved yet...';
             console.log(`
 ** * * * * * * * * * * * * * * * * * * * * * * * **
 *                                                 *
@@ -77,11 +78,11 @@ export class Puzzle<TData> {
 ** * * * * * * * * * * * * * * * * * * * * * * * **
 `);
         }
-        if (!this.config.skipPart2 && example) {
+        if (!this.config.skipPart2 && exampleData) {
             timer.reset();
             const result =
                 (await (this.config.example2 ?? this.config.part2)(
-                    this.exampleData
+                    exampleData
                 )) ?? 'Not solved yet...';
             console.log(`
 ** * * * * * * * * * * * * * * * * * * * * * * * **
@@ -95,11 +96,10 @@ export class Puzzle<TData> {
 ** * * * * * * * * * * * * * * * * * * * * * * * **
 `);
         }
-        if (!this.config.skipPart2 && mainProblem) {
+        if (!this.config.skipPart2 && puzzleData) {
             timer.reset();
             const result =
-                (await this.config.part2(this.puzzleData)) ??
-                'Not solved yet...';
+                (await this.config.part2(puzzleData)) ?? 'Not solved yet...';
             console.log(`
 ** * * * * * * * * * * * * * * * * * * * * * * * **
 *                                                 *

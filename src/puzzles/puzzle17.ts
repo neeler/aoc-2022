@@ -1,4 +1,5 @@
 import { Point } from '~/types/Point';
+import { numbersBetween } from '~/util/numbersBetween';
 import { readDataFile } from '~/util/readDataFile';
 import { Puzzle } from './Puzzle';
 
@@ -66,26 +67,23 @@ class Rock {
         this.focalPoint = [2, highestRock + 3];
     }
 
-    getPotentialYPositions(direction: Direction) {
+    get positions(): Point[] {
+        return rockPositions[this.shape].map(([x, y]) => [
+            x + this.focalPoint[0],
+            y + this.focalPoint[1],
+        ]);
+    }
+
+    getPositionsIf(direction: Direction): Point[] {
         const directionDiff = directionDiffs[direction];
-        const mins = Array(7).fill(Infinity) as Row<number>;
-        const maxes = Array(7).fill(-Infinity) as Row<number>;
-        rockPositions[this.shape].forEach(([dx, dy]) => {
-            const x = dx + this.focalPoint[0] + directionDiff[0];
-            const y = dy + this.focalPoint[1] + directionDiff[1];
-            mins[x] = Math.min(mins[x], y);
-            maxes[x] = Math.max(maxes[x], y);
-        });
-        return {
-            mins,
-            maxes,
-        };
+        return this.positions.map(([x, y]) => [
+            x + directionDiff[0],
+            y + directionDiff[1],
+        ]);
     }
 
     isXBounded(direction: Direction) {
-        const directionDiff = directionDiffs[direction];
-        return rockPositions[this.shape].some(([dx]) => {
-            const x = dx + this.focalPoint[0] + directionDiff[0];
+        return this.getPositionsIf(direction).some(([x]) => {
             return x < 0 || x > 6;
         });
     }
@@ -115,6 +113,7 @@ class Grid {
         [this.signature]: 0,
     };
     private heightsByRockIndex: number[] = [0];
+    private signaturesByRockIndex: string[] = [this.signature];
     private maxHeight = 0;
     private cycle: {
         heightBeforeStart: number;
@@ -124,8 +123,9 @@ class Grid {
         heightAfterCycle: number;
         cycleStepHeights: number[];
     };
+    private readonly grid: Row<boolean>[] = [];
 
-    constructor({ rocks, jetPatterns }: PuzzleData) {
+    constructor({ rocks, jetPatterns }: PuzzleData & {}) {
         this.rocks = rocks;
         this.jetPatterns = jetPatterns;
         this.cycle = this.findCycle();
@@ -161,50 +161,46 @@ class Grid {
     }
 
     private findCycle() {
-        if (this.cycle) return this.cycle;
-        try {
-            while (true) {
-                this.addRock();
-            }
-        } catch {
-            //
-        }
-        if (!this.cycle) {
-            throw new Error('Cycle not found!');
+        while (!this.cycle) {
+            this.addRock();
         }
         return this.cycle;
     }
 
-    private addRock() {
-        if (this.cycle) return;
+    private fitRock(rock: Rock) {
+        rock.positions.forEach(([x, y]) => {
+            while (this.grid.length < y + 1) {
+                this.grid.push(Array(7).fill(false) as Row<boolean>);
+            }
+        });
+    }
 
+    private addRock() {
         const rock = new Rock({
             shape: this.rocks[this.iRock],
             highestRock: this.maxHeight,
         });
+        this.fitRock(rock);
 
         this.iTotalRocks = this.iTotalRocks + 1;
         this.iRock = this.iTotalRocks % this.rocks.length;
 
-        let rockMaxes: number[] = [];
         while (true) {
             const jet = this.jetPattern;
             const isXBounded = rock.isXBounded(jet);
             if (!isXBounded) {
-                const { mins: jetMins, maxes } =
-                    rock.getPotentialYPositions(jet);
-                if (!this.collidesWithRock(jetMins)) {
+                if (!this.collidesWithRock(rock.getPositionsIf(jet))) {
                     rock.move(jet);
-                    rockMaxes = maxes;
                 }
             }
             this.iJet = (this.iJet + 1) % this.jetPatterns.length;
 
-            const { mins: rockMins, maxes } =
-                rock.getPotentialYPositions('down');
-            if (this.collidesWithRock(rockMins)) {
+            if (this.collidesWithRock(rock.getPositionsIf('down'))) {
                 // Settle rock
-                rockMaxes.forEach((y, x) => {
+                rock.positions.forEach(([x, y]) => {
+                    const row = this.grid[y];
+                    row[x] = true;
+                    this.grid[y] = row;
                     if (y > this.maxHeights[x]) {
                         this.maxHeights[x] = y;
                     }
@@ -212,7 +208,6 @@ class Grid {
                 break;
             } else {
                 rock.move('down');
-                rockMaxes = maxes;
             }
         }
 
@@ -226,9 +221,7 @@ class Grid {
         }:${this.relativeHeights.join(',')}`;
 
         if (this.heightsBySignature[this.signature] !== undefined) {
-            console.log(
-                `Cycle detected at rock ${this.iTotalRocks}! height: ${this.maxHeight}`
-            );
+            // Cycle detected
             const iLast = this.iTotalRocks - 1;
             const cycleLength =
                 this.iTotalRocks - this.nRocksBySignature[this.signature];
@@ -249,17 +242,18 @@ class Grid {
                         heightBeforeStart
                 ),
             };
-            console.log(this.cycle);
-            throw new Error('cycle!');
-        } else {
-            this.nRocksBySignature[this.signature] = this.iTotalRocks;
-            this.heightsBySignature[this.signature] = this.maxHeight;
-            this.heightsByRockIndex[this.iTotalRocks] = this.maxHeight;
         }
+
+        this.signaturesByRockIndex[this.iTotalRocks] = this.signature;
+        this.nRocksBySignature[this.signature] = this.iTotalRocks;
+        this.heightsBySignature[this.signature] = this.maxHeight;
+        this.heightsByRockIndex[this.iTotalRocks] = this.maxHeight;
     }
 
-    private collidesWithRock(minHeights: Row<number>) {
-        return minHeights.some((y, x) => this.maxHeights[x] >= y);
+    private collidesWithRock(points: Point[]) {
+        return points.some(
+            (point) => this.grid[point[1]]?.[point[0]] !== false
+        );
     }
 }
 
