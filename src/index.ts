@@ -16,6 +16,7 @@ import {
     puzzle15,
     puzzle16,
     puzzle17,
+    puzzle18,
 } from '~/puzzles';
 
 // puzzle1.run();
@@ -34,4 +35,5 @@ import {
 // puzzle14.run();
 // puzzle15.run();
 // puzzle16.run();
-puzzle17.run();
+// puzzle17.run();
+puzzle18.run();
