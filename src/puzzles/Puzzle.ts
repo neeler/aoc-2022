@@ -1,12 +1,19 @@
 import { Timer } from '~/util/Timer';
 import { readDataFile } from '~/util/readDataFile';
 
+interface FileProcessorOptions {
+    example?: boolean;
+    puzzle?: boolean;
+}
+
+type FileProcessor<TData> = (
+    fileData: string,
+    options: FileProcessorOptions
+) => TData;
+
 interface PuzzleConfig<TData> {
     day: number;
-    processFile: (
-        fileData: string,
-        options: { example?: boolean; puzzle?: boolean }
-    ) => TData;
+    processFile?: FileProcessor<TData>;
     example1?: (data: TData) => any;
     part1: (data: TData) => any;
     example2?: (data: TData) => any;
@@ -16,21 +23,28 @@ interface PuzzleConfig<TData> {
     skipPart2?: boolean;
 }
 
-export class Puzzle<TData> {
+export class Puzzle<TData = string> {
     constructor(private readonly config: PuzzleConfig<TData>) {}
+
+    private processFile(fileData: string, options: FileProcessorOptions) {
+        if (this.config.processFile) {
+            return this.config.processFile(fileData, options);
+        }
+        return fileData as TData;
+    }
 
     async run({
         example = false,
         mainProblem = true,
     }: { example?: boolean; mainProblem?: boolean } = {}) {
         const exampleData = example
-            ? this.config.processFile(
+            ? this.processFile(
                   readDataFile(`puzzle${this.config.day}-example.txt`),
                   { example: true }
               )
             : undefined;
         const puzzleData = mainProblem
-            ? this.config.processFile(
+            ? this.processFile(
                   readDataFile(`puzzle${this.config.day}-input.txt`),
                   { puzzle: true }
               )
