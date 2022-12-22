@@ -1,10 +1,10 @@
-import { FixedLengthRow } from '~/types/FixedLengthRow';
+import { FixedSizeArray } from '~/types/FixedSizeArray';
 import { Point } from '~/types/Point';
 import { readDataFile } from '~/util/readDataFile';
 import { Puzzle } from './Puzzle';
 
-type NumberRow = FixedLengthRow<number, 7>;
-type BooleanRow = FixedLengthRow<boolean, 7>;
+type NumberRow = FixedSizeArray<number, 7>;
+type BooleanRow = FixedSizeArray<boolean, 7>;
 type Direction = 'down' | '<' | '>';
 
 interface PuzzleData {
