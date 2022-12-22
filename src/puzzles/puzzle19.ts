@@ -1,9 +1,9 @@
-import { setTimeout } from 'timers/promises';
+import { FixedLengthRow } from '~/types/FixedLengthRow';
 import { Puzzle } from './Puzzle';
 
 type Resource = 'ore' | 'clay' | 'obsidian' | 'geode';
-type Row<T> = [T, T, T, T];
-type Counts = Row<number>;
+type Counts = FixedLengthRow<number, 4>;
+type CountsRow = FixedLengthRow<Counts, 4>;
 
 const [ORE, CLAY, OBSIDIAN, GEODE] = [0, 1, 2, 3] as const;
 const Resources = [ORE, CLAY, OBSIDIAN, GEODE];
@@ -37,7 +37,7 @@ function initialState({ timeLimit }: { timeLimit: number }): State {
 
 class Blueprint {
     id: number;
-    robotCosts: Row<Counts>;
+    robotCosts: CountsRow;
     maxRobotsNeeded: Counts;
     maxGeodes = 0;
     maxGeodesByStateId: Record<string, number> = {};

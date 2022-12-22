@@ -1,9 +1,10 @@
+import { FixedLengthRow } from '~/types/FixedLengthRow';
 import { Point } from '~/types/Point';
-import { numbersBetween } from '~/util/numbersBetween';
 import { readDataFile } from '~/util/readDataFile';
 import { Puzzle } from './Puzzle';
 
-type Row<T> = [T, T, T, T, T, T, T];
+type NumberRow = FixedLengthRow<number, 7>;
+type BooleanRow = FixedLengthRow<boolean, 7>;
 type Direction = 'down' | '<' | '>';
 
 interface PuzzleData {
@@ -103,8 +104,8 @@ class Grid {
     private iJet = 0;
     private rocks: string[];
     private jetPatterns: Direction[];
-    private maxHeights: Row<number> = [-1, -1, -1, -1, -1, -1, -1];
-    private relativeHeights: Row<number> = [0, 0, 0, 0, 0, 0, 0];
+    private maxHeights: NumberRow = [-1, -1, -1, -1, -1, -1, -1];
+    private relativeHeights: NumberRow = [0, 0, 0, 0, 0, 0, 0];
     private signature: string = '0:0:0,0,0,0,0,0,0';
     private heightsBySignature: Record<string, number> = {
         [this.signature]: 0,
@@ -122,7 +123,7 @@ class Grid {
         heightAfterCycle: number;
         cycleStepHeights: number[];
     };
-    private readonly grid: Row<boolean>[] = [];
+    private readonly grid: BooleanRow[] = [];
 
     constructor({ rocks, jetPatterns }: PuzzleData & {}) {
         this.rocks = rocks;
@@ -169,7 +170,7 @@ class Grid {
     private fitRock(rock: Rock) {
         rock.positions.forEach(([x, y]) => {
             while (this.grid.length < y + 1) {
-                this.grid.push(Array(7).fill(false) as Row<boolean>);
+                this.grid.push(Array(7).fill(false) as BooleanRow);
             }
         });
     }
@@ -214,7 +215,7 @@ class Grid {
         const minHeight = Math.min(...this.maxHeights);
         this.relativeHeights = this.maxHeights.map(
             (height) => height - minHeight
-        ) as Row<number>;
+        ) as NumberRow;
         this.signature = `${this.iRock}:${
             this.iJet
         }:${this.relativeHeights.join(',')}`;
