@@ -47,7 +47,7 @@ async function start() {
     // await puzzle21.run();
     await puzzle22.run({
         example: true,
-        mainProblem: true,
+        mainProblem: false,
     });
 }
 

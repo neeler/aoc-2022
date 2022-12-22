@@ -45,14 +45,23 @@ const arrowsByDirection = {
     [Directions.down]: Arrows.down,
 } as const;
 
+interface Link3D {
+    point: Point;
+    direction: Direction;
+}
+
 class Board {
     width: number;
     height: number;
+    cubeSize: number;
     grid: MapSymbol[][];
     marks: (Arrow | undefined)[][];
+    faces: (number | undefined)[][];
+    directionLinks3D: (Record<string, Link3D | undefined> | undefined)[][];
     path: (number | RotationDirection)[];
     position: Point;
     direction: Direction = Directions.right;
+    private maxCubeIndex: number;
 
     constructor({
         mapLines,
@@ -63,10 +72,17 @@ class Board {
     }) {
         this.width = Math.max(...mapLines.map((row) => row.length));
         this.height = mapLines.length;
+        this.cubeSize = Math.round(Math.max(this.width, this.height) / 4);
         this.grid = Array.from({ length: this.height }, () =>
             Array(this.width).fill(MapSymbols.space)
         );
+        this.faces = Array.from({ length: this.height }, () =>
+            Array(this.width).fill(undefined)
+        );
         this.marks = Array.from({ length: this.height }, () =>
+            Array(this.width).fill(undefined)
+        );
+        this.directionLinks3D = Array.from({ length: this.height }, () =>
             Array(this.width).fill(undefined)
         );
         mapLines.forEach((row, y) => {
@@ -74,8 +90,221 @@ class Board {
                 this.grid[y][x] = symbol as MapSymbol;
             });
         });
+        const size2 = this.cubeSize * 2;
+        const size3 = this.cubeSize * 3;
+        const maxCubeIndex = this.cubeSize - 1;
+        this.maxCubeIndex = maxCubeIndex;
+        for (let y = 0; y < this.cubeSize; y++) {
+            for (let x = size2; x < size3; x++) {
+                this.faces[y][x] = 1;
+                const cubePoint = this.cubify([x, y]);
+                const [cubeX, cubeY] = cubePoint;
+                this.directionLinks3D[y][x] = this.condenseLinks(
+                    {
+                        [Directions.right]: {
+                            point: this.decubify(
+                                [maxCubeIndex, maxCubeIndex - cubeY],
+                                6
+                            ),
+                            direction: Directions.left,
+                        },
+                        [Directions.left]: {
+                            point: this.decubify([cubeY, 0], 3),
+                            direction: Directions.down,
+                        },
+                        [Directions.up]: {
+                            point: this.decubify([maxCubeIndex - cubeX, 0], 2),
+                            direction: Directions.down,
+                        },
+                    },
+                    cubePoint
+                );
+            }
+        }
+        for (let y = this.cubeSize; y < size2; y++) {
+            for (let x = 0; x < this.cubeSize; x++) {
+                this.faces[y][x] = 2;
+                const cubePoint = this.cubify([x, y]);
+                const [cubeX, cubeY] = cubePoint;
+                this.directionLinks3D[y][x] = this.condenseLinks(
+                    {
+                        [Directions.left]: {
+                            point: this.decubify(
+                                [maxCubeIndex - cubeY, maxCubeIndex],
+                                6
+                            ),
+                            direction: Directions.up,
+                        },
+                        [Directions.up]: {
+                            point: this.decubify([maxCubeIndex - cubeX, 0], 1),
+                            direction: Directions.down,
+                        },
+                        [Directions.down]: {
+                            point: this.decubify(
+                                [maxCubeIndex - cubeX, maxCubeIndex],
+                                5
+                            ),
+                            direction: Directions.up,
+                        },
+                    },
+                    cubePoint
+                );
+            }
+            for (let x = this.cubeSize; x < size2; x++) {
+                this.faces[y][x] = 3;
+                const cubePoint = this.cubify([x, y]);
+                const [cubeX, cubeY] = cubePoint;
+                this.directionLinks3D[y][x] = this.condenseLinks(
+                    {
+                        [Directions.up]: {
+                            point: this.decubify([0, cubeX], 1),
+                            direction: Directions.right,
+                        },
+                        [Directions.down]: {
+                            point: this.decubify([0, maxCubeIndex - cubeX], 5),
+                            direction: Directions.right,
+                        },
+                    },
+                    cubePoint
+                );
+            }
+            for (let x = size2; x < size3; x++) {
+                this.faces[y][x] = 4;
+                const cubePoint = this.cubify([x, y]);
+                const [cubeX, cubeY] = cubePoint;
+                this.directionLinks3D[y][x] = this.condenseLinks(
+                    {
+                        [Directions.right]: {
+                            point: this.decubify([maxCubeIndex - cubeY, 0], 6),
+                            direction: Directions.down,
+                        },
+                    },
+                    cubePoint
+                );
+            }
+        }
+        for (let y = size2; y < size3; y++) {
+            for (let x = size2; x < size3; x++) {
+                this.faces[y][x] = 5;
+                const cubePoint = this.cubify([x, y]);
+                const [cubeX, cubeY] = cubePoint;
+                this.directionLinks3D[y][x] = this.condenseLinks(
+                    {
+                        [Directions.left]: {
+                            point: this.decubify(
+                                [maxCubeIndex - cubeY, maxCubeIndex],
+                                3
+                            ),
+                            direction: Directions.up,
+                        },
+                        [Directions.down]: {
+                            point: this.decubify(
+                                [maxCubeIndex - cubeX, maxCubeIndex],
+                                2
+                            ),
+                            direction: Directions.up,
+                        },
+                    },
+                    cubePoint
+                );
+            }
+            for (let x = size3; x < this.width; x++) {
+                this.faces[y][x] = 6;
+                const cubePoint = this.cubify([x, y]);
+                const [cubeX, cubeY] = cubePoint;
+                this.directionLinks3D[y][x] = this.condenseLinks(
+                    {
+                        [Directions.right]: {
+                            point: this.decubify(
+                                [maxCubeIndex, maxCubeIndex - cubeY],
+                                1
+                            ),
+                            direction: Directions.left,
+                        },
+                        [Directions.up]: {
+                            point: this.decubify(
+                                [maxCubeIndex, maxCubeIndex - cubeX],
+                                4
+                            ),
+                            direction: Directions.down,
+                        },
+                        [Directions.down]: {
+                            point: this.decubify([0, maxCubeIndex - cubeX], 2),
+                            direction: Directions.right,
+                        },
+                    },
+                    cubePoint
+                );
+            }
+        }
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                const face = this.faces[y][x];
+                switch (face) {
+                    case 1: {
+                        break;
+                    }
+                    case 2: {
+                        break;
+                    }
+                    case 3: {
+                        break;
+                    }
+                    case 4: {
+                        break;
+                    }
+                    case 5: {
+                        break;
+                    }
+                    case 6: {
+                        break;
+                    }
+                }
+            }
+        }
         this.position = [this.grid[0].indexOf(MapSymbols.open), 0];
         this.path = path;
+    }
+
+    condenseLinks(links: Record<string, Link3D>, [x, y]: Point) {
+        return {
+            [Directions.right]:
+                x === this.maxCubeIndex ? links[Directions.right] : undefined,
+            [Directions.left]: x === 0 ? links[Directions.left] : undefined,
+            [Directions.up]: y === 0 ? links[Directions.up] : undefined,
+            [Directions.down]:
+                y === this.maxCubeIndex ? links[Directions.down] : undefined,
+        };
+    }
+
+    cubify([x, y]: Point): Point {
+        return [x % this.cubeSize, y % this.cubeSize];
+    }
+
+    decubify([x, y]: Point, cube: number): Point {
+        switch (cube) {
+            case 1: {
+                return [x + this.cubeSize * 2, y];
+            }
+            case 2: {
+                return [x, y + this.cubeSize];
+            }
+            case 3: {
+                return [x + this.cubeSize, y + this.cubeSize];
+            }
+            case 4: {
+                return [x + this.cubeSize * 2, y + this.cubeSize];
+            }
+            case 5: {
+                return [x + this.cubeSize * 2, y + this.cubeSize * 2];
+            }
+            case 6: {
+                return [x + this.cubeSize * 3, y + this.cubeSize * 2];
+            }
+            default: {
+                throw new Error(`Invalid cube ${cube}`);
+            }
+        }
     }
 
     getMapAt(x: number, y: number): MapSymbol | undefined {
@@ -93,14 +322,29 @@ class Board {
         return undefined;
     }
 
-    tryPoints(points: Point[]): Point | undefined {
-        for (const [x, y] of points) {
-            const point = this.getPointIfOpen(x, y);
-            if (point) {
-                return point;
-            }
-            if (point === null) {
-                return undefined;
+    tryPoints(points: (Point | Link3D)[]): Point | undefined {
+        for (const data of points) {
+            let point: Point | null | undefined;
+            if (Array.isArray(data)) {
+                const [x, y] = data;
+                point = this.getPointIfOpen(x, y);
+                if (point) {
+                    return point;
+                }
+                if (point === null) {
+                    return undefined;
+                }
+            } else {
+                const { point: nextPoint, direction } = data;
+                const [x, y] = nextPoint;
+                point = this.getPointIfOpen(x, y);
+                if (point) {
+                    this.direction = direction;
+                    return point;
+                }
+                if (point === null) {
+                    return undefined;
+                }
             }
         }
         return undefined;
@@ -159,6 +403,84 @@ class Board {
         }
     }
 
+    getNextOpenPosition3D(): Point | undefined {
+        // console.log(`at ${this.position.join(',')} facing ${this.direction}`);
+        const [x, y] = this.position;
+        // const [cubeX, cubeY] = this.cubify([x, y]);
+        const wrapData = this.directionLinks3D[y][x]?.[this.direction];
+        // console.log(wrapData);
+        switch (this.direction) {
+            case 'R': {
+                return this.tryPoints([
+                    [x + 1, y],
+                    wrapData ?? [
+                        this.grid[y].findIndex((s) => s !== MapSymbols.space),
+                        y,
+                    ],
+                ]);
+            }
+            case 'L': {
+                const points: (Point | Link3D)[] = [
+                    wrapData ?? [
+                        this.grid[y]
+                            .map((x) => x !== MapSymbols.space)
+                            .lastIndexOf(true),
+                        y,
+                    ],
+                ];
+                if (x >= 1) {
+                    points.unshift([x - 1, y]);
+                    return this.tryPoints(points);
+                }
+                return this.tryPoints(points);
+            }
+            case 'U': {
+                const points: (Point | Link3D)[] = [
+                    wrapData ?? [
+                        x,
+                        this.grid
+                            .map((row) => row[x] !== MapSymbols.space)
+                            .lastIndexOf(true),
+                    ],
+                ];
+                if (y >= 1) {
+                    points.unshift([x, y - 1]);
+                    return this.tryPoints(points);
+                }
+                return this.tryPoints(points);
+            }
+            case 'D': {
+                return this.tryPoints([
+                    [x, y + 1],
+                    wrapData ?? [
+                        x,
+                        this.grid.findIndex(
+                            (row) => row[x] !== MapSymbols.space
+                        ),
+                    ],
+                ]);
+            }
+        }
+    }
+
+    rotate(dir: RotationDirection) {
+        const currentDirectionIndex = clockwiseDirections.indexOf(
+            this.direction
+        );
+        if (dir === 'R') {
+            this.direction =
+                clockwiseDirections[
+                    (currentDirectionIndex + 1) % clockwiseDirections.length
+                ];
+        } else {
+            this.direction =
+                clockwiseDirections[
+                    (currentDirectionIndex + clockwiseDirections.length - 1) %
+                        clockwiseDirections.length
+                ];
+        }
+    }
+
     followPath() {
         this.markMap();
         for (const move of this.path) {
@@ -173,27 +495,37 @@ class Board {
                     }
                 }
             } else {
-                const currentDirectionIndex = clockwiseDirections.indexOf(
-                    this.direction
-                );
-                if (move === 'R') {
-                    this.direction =
-                        clockwiseDirections[
-                            (currentDirectionIndex + 1) %
-                                clockwiseDirections.length
-                        ];
-                } else {
-                    this.direction =
-                        clockwiseDirections[
-                            (currentDirectionIndex +
-                                clockwiseDirections.length -
-                                1) %
-                                clockwiseDirections.length
-                        ];
-                }
+                this.rotate(move);
                 this.markMap();
             }
         }
+        return this.password;
+    }
+
+    followPath3D() {
+        this.markMap();
+        // this.draw();
+        for (const move of this.path) {
+            if (typeof move === 'number') {
+                for (let i = 0; i < move; i++) {
+                    const nextOpenPosition = this.getNextOpenPosition3D();
+                    if (nextOpenPosition) {
+                        this.position = nextOpenPosition;
+                        this.markMap();
+                    } else {
+                        // console.log('hit wall');
+                        break;
+                    }
+                }
+            } else {
+                // console.log('turning', move);
+                this.rotate(move);
+                this.markMap();
+                // console.log('facing', this.direction);
+            }
+            // this.draw();
+        }
+        // this.draw();
         return this.password;
     }
 
@@ -216,6 +548,14 @@ ${this.grid
     .map((row, y) =>
         row.map((symbol, x) => this.marks[y][x] ?? symbol).join('')
     )
+    .join('\n')}
+`);
+    }
+
+    draw3D() {
+        console.log(`
+${this.grid
+    .map((row, y) => row.map((symbol, x) => this.faces[y][x] ?? ' ').join(''))
     .join('\n')}
 `);
     }
@@ -252,16 +592,21 @@ export const puzzle22 = new Puzzle({
                 path.push(turnDirection as RotationDirection);
             }
         }
+        return {
+            mapLines,
+            path,
+        };
+    },
+    part1: ({ mapLines, path }) =>
+        new Board({
+            mapLines,
+            path,
+        }).followPath(),
+    part2: ({ mapLines, path }) => {
         const board = new Board({
             mapLines,
             path,
         });
-        return {
-            board,
-        };
-    },
-    part1: ({ board }) => board.followPath(),
-    part2: (data) => {
-        //
+        return board.followPath3D();
     },
 });
