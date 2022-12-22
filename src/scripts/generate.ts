@@ -47,11 +47,18 @@ ${Array.from({ length: nextPuzzle }, (v, i) => `    puzzle${i + 1},`).join(
     '\n'
 )}
 } from '~/puzzles';
-    
+
+async function start() {    
 ${Array.from(
     { length: nextPuzzle - 1 },
-    (v, i) => `// puzzle${i + 1}.run();`
+    (v, i) => `    // await puzzle${i + 1}.run();`
 ).join('\n')}
-puzzle${nextPuzzle}.run({ example: true, mainProblem: false });
+    await puzzle${nextPuzzle}.run({ 
+        example: true, 
+        mainProblem: false 
+    });
+}
+
+start();
 `
 );
