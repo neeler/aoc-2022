@@ -95,8 +95,26 @@ class Board {
         const maxCubeIndex = this.cubeSize - 1;
         this.maxCubeIndex = maxCubeIndex;
         for (let y = 0; y < this.cubeSize; y++) {
-            for (let x = size2; x < size3; x++) {
+            for (let x = this.cubeSize; x < size2; x++) {
                 this.faces[y][x] = 1;
+                const cubePoint = this.cubify([x, y]);
+                const [cubeX, cubeY] = cubePoint;
+                this.directionLinks3D[y][x] = this.condenseLinks(
+                    {
+                        [Directions.left]: {
+                            point: this.decubify([0, maxCubeIndex - cubeY], 4),
+                            direction: Directions.right,
+                        },
+                        [Directions.up]: {
+                            point: this.decubify([0, cubeX], 6),
+                            direction: Directions.right,
+                        },
+                    },
+                    cubePoint
+                );
+            }
+            for (let x = size2; x < size3; x++) {
+                this.faces[y][x] = 2;
                 const cubePoint = this.cubify([x, y]);
                 const [cubeX, cubeY] = cubePoint;
                 this.directionLinks3D[y][x] = this.condenseLinks(
@@ -104,17 +122,17 @@ class Board {
                         [Directions.right]: {
                             point: this.decubify(
                                 [maxCubeIndex, maxCubeIndex - cubeY],
-                                6
+                                5
                             ),
                             direction: Directions.left,
                         },
-                        [Directions.left]: {
-                            point: this.decubify([cubeY, 0], 3),
-                            direction: Directions.down,
-                        },
                         [Directions.up]: {
-                            point: this.decubify([maxCubeIndex - cubeX, 0], 2),
-                            direction: Directions.down,
+                            point: this.decubify([cubeX, maxCubeIndex], 6),
+                            direction: Directions.up,
+                        },
+                        [Directions.down]: {
+                            point: this.decubify([maxCubeIndex, cubeX], 3),
+                            direction: Directions.left,
                         },
                     },
                     cubePoint
@@ -122,60 +140,18 @@ class Board {
             }
         }
         for (let y = this.cubeSize; y < size2; y++) {
-            for (let x = 0; x < this.cubeSize; x++) {
-                this.faces[y][x] = 2;
-                const cubePoint = this.cubify([x, y]);
-                const [cubeX, cubeY] = cubePoint;
-                this.directionLinks3D[y][x] = this.condenseLinks(
-                    {
-                        [Directions.left]: {
-                            point: this.decubify(
-                                [maxCubeIndex - cubeY, maxCubeIndex],
-                                6
-                            ),
-                            direction: Directions.up,
-                        },
-                        [Directions.up]: {
-                            point: this.decubify([maxCubeIndex - cubeX, 0], 1),
-                            direction: Directions.down,
-                        },
-                        [Directions.down]: {
-                            point: this.decubify(
-                                [maxCubeIndex - cubeX, maxCubeIndex],
-                                5
-                            ),
-                            direction: Directions.up,
-                        },
-                    },
-                    cubePoint
-                );
-            }
             for (let x = this.cubeSize; x < size2; x++) {
                 this.faces[y][x] = 3;
                 const cubePoint = this.cubify([x, y]);
                 const [cubeX, cubeY] = cubePoint;
                 this.directionLinks3D[y][x] = this.condenseLinks(
                     {
-                        [Directions.up]: {
-                            point: this.decubify([0, cubeX], 1),
-                            direction: Directions.right,
-                        },
-                        [Directions.down]: {
-                            point: this.decubify([0, maxCubeIndex - cubeX], 5),
-                            direction: Directions.right,
-                        },
-                    },
-                    cubePoint
-                );
-            }
-            for (let x = size2; x < size3; x++) {
-                this.faces[y][x] = 4;
-                const cubePoint = this.cubify([x, y]);
-                const [cubeX, cubeY] = cubePoint;
-                this.directionLinks3D[y][x] = this.condenseLinks(
-                    {
                         [Directions.right]: {
-                            point: this.decubify([maxCubeIndex - cubeY, 0], 6),
+                            point: this.decubify([cubeY, maxCubeIndex], 2),
+                            direction: Directions.up,
+                        },
+                        [Directions.left]: {
+                            point: this.decubify([cubeY, 0], 4),
                             direction: Directions.down,
                         },
                     },
@@ -184,32 +160,26 @@ class Board {
             }
         }
         for (let y = size2; y < size3; y++) {
-            for (let x = size2; x < size3; x++) {
-                this.faces[y][x] = 5;
+            for (let x = 0; x < this.cubeSize; x++) {
+                this.faces[y][x] = 4;
                 const cubePoint = this.cubify([x, y]);
                 const [cubeX, cubeY] = cubePoint;
                 this.directionLinks3D[y][x] = this.condenseLinks(
                     {
                         [Directions.left]: {
-                            point: this.decubify(
-                                [maxCubeIndex - cubeY, maxCubeIndex],
-                                3
-                            ),
-                            direction: Directions.up,
+                            point: this.decubify([0, maxCubeIndex - cubeY], 1),
+                            direction: Directions.right,
                         },
-                        [Directions.down]: {
-                            point: this.decubify(
-                                [maxCubeIndex - cubeX, maxCubeIndex],
-                                2
-                            ),
-                            direction: Directions.up,
+                        [Directions.up]: {
+                            point: this.decubify([0, cubeX], 3),
+                            direction: Directions.right,
                         },
                     },
                     cubePoint
                 );
             }
-            for (let x = size3; x < this.width; x++) {
-                this.faces[y][x] = 6;
+            for (let x = this.cubeSize; x < size2; x++) {
+                this.faces[y][x] = 5;
                 const cubePoint = this.cubify([x, y]);
                 const [cubeX, cubeY] = cubePoint;
                 this.directionLinks3D[y][x] = this.condenseLinks(
@@ -217,48 +187,40 @@ class Board {
                         [Directions.right]: {
                             point: this.decubify(
                                 [maxCubeIndex, maxCubeIndex - cubeY],
-                                1
+                                2
                             ),
                             direction: Directions.left,
                         },
-                        [Directions.up]: {
-                            point: this.decubify(
-                                [maxCubeIndex, maxCubeIndex - cubeX],
-                                4
-                            ),
-                            direction: Directions.down,
-                        },
                         [Directions.down]: {
-                            point: this.decubify([0, maxCubeIndex - cubeX], 2),
-                            direction: Directions.right,
+                            point: this.decubify([maxCubeIndex, cubeX], 6),
+                            direction: Directions.left,
                         },
                     },
                     cubePoint
                 );
             }
-        }
-        for (let y = 0; y < this.height; y++) {
-            for (let x = 0; x < this.width; x++) {
-                const face = this.faces[y][x];
-                switch (face) {
-                    case 1: {
-                        break;
-                    }
-                    case 2: {
-                        break;
-                    }
-                    case 3: {
-                        break;
-                    }
-                    case 4: {
-                        break;
-                    }
-                    case 5: {
-                        break;
-                    }
-                    case 6: {
-                        break;
-                    }
+            for (let y = size3; y < this.height; y++) {
+                for (let x = 0; x < this.cubeSize; x++) {
+                    this.faces[y][x] = 6;
+                    const cubePoint = this.cubify([x, y]);
+                    const [cubeX, cubeY] = cubePoint;
+                    this.directionLinks3D[y][x] = this.condenseLinks(
+                        {
+                            [Directions.right]: {
+                                point: this.decubify([cubeY, maxCubeIndex], 5),
+                                direction: Directions.up,
+                            },
+                            [Directions.left]: {
+                                point: this.decubify([cubeY, 0], 1),
+                                direction: Directions.down,
+                            },
+                            [Directions.down]: {
+                                point: this.decubify([cubeX, 0], 2),
+                                direction: Directions.down,
+                            },
+                        },
+                        cubePoint
+                    );
                 }
             }
         }
@@ -284,22 +246,22 @@ class Board {
     decubify([x, y]: Point, cube: number): Point {
         switch (cube) {
             case 1: {
-                return [x + this.cubeSize * 2, y];
+                return [x + this.cubeSize, y];
             }
             case 2: {
-                return [x, y + this.cubeSize];
+                return [x + this.cubeSize * 2, y];
             }
             case 3: {
                 return [x + this.cubeSize, y + this.cubeSize];
             }
             case 4: {
-                return [x + this.cubeSize * 2, y + this.cubeSize];
+                return [x, y + this.cubeSize * 2];
             }
             case 5: {
-                return [x + this.cubeSize * 2, y + this.cubeSize * 2];
+                return [x + this.cubeSize, y + this.cubeSize * 2];
             }
             case 6: {
-                return [x + this.cubeSize * 3, y + this.cubeSize * 2];
+                return [x, y + this.cubeSize * 3];
             }
             default: {
                 throw new Error(`Invalid cube ${cube}`);
@@ -404,11 +366,8 @@ class Board {
     }
 
     getNextOpenPosition3D(): Point | undefined {
-        // console.log(`at ${this.position.join(',')} facing ${this.direction}`);
         const [x, y] = this.position;
-        // const [cubeX, cubeY] = this.cubify([x, y]);
         const wrapData = this.directionLinks3D[y][x]?.[this.direction];
-        // console.log(wrapData);
         switch (this.direction) {
             case 'R': {
                 return this.tryPoints([
@@ -504,7 +463,6 @@ class Board {
 
     followPath3D() {
         this.markMap();
-        // this.draw();
         for (const move of this.path) {
             if (typeof move === 'number') {
                 for (let i = 0; i < move; i++) {
@@ -513,19 +471,15 @@ class Board {
                         this.position = nextOpenPosition;
                         this.markMap();
                     } else {
-                        // console.log('hit wall');
+                        // Hit wall
                         break;
                     }
                 }
             } else {
-                // console.log('turning', move);
                 this.rotate(move);
                 this.markMap();
-                // console.log('facing', this.direction);
             }
-            // this.draw();
         }
-        // this.draw();
         return this.password;
     }
 
@@ -597,6 +551,7 @@ export const puzzle22 = new Puzzle({
             path,
         };
     },
+    skipPart1: true,
     part1: ({ mapLines, path }) =>
         new Board({
             mapLines,
