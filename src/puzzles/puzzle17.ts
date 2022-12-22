@@ -113,7 +113,6 @@ class Grid {
         [this.signature]: 0,
     };
     private heightsByRockIndex: number[] = [0];
-    private signaturesByRockIndex: string[] = [this.signature];
     private maxHeight = 0;
     private cycle: {
         heightBeforeStart: number;
@@ -244,7 +243,6 @@ class Grid {
             };
         }
 
-        this.signaturesByRockIndex[this.iTotalRocks] = this.signature;
         this.nRocksBySignature[this.signature] = this.iTotalRocks;
         this.heightsBySignature[this.signature] = this.maxHeight;
         this.heightsByRockIndex[this.iTotalRocks] = this.maxHeight;
