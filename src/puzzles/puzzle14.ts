@@ -1,4 +1,3 @@
-import { setTimeout } from 'timers/promises';
 import { Point } from '~/types/Point';
 import { linePoints } from '~/util/linePoints';
 import { Puzzle } from './Puzzle';
@@ -95,8 +94,6 @@ class Cave {
                             outOfBounds = true;
                             break;
                         }
-                        // this.draw();
-                        // await setTimeout(100);
                         break;
                     }
                 } else {
@@ -105,13 +102,6 @@ class Cave {
                 }
             }
         }
-        // this.draw();
-    }
-
-    draw() {
-        console.log(`
-${this.grid.map((row) => row.slice(this.minX - 10).join('')).join('\n')}
-`);
     }
 }
 
