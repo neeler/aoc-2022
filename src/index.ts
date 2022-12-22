@@ -20,26 +20,35 @@ import {
     puzzle19,
     puzzle20,
     puzzle21,
+    puzzle22,
 } from '~/puzzles';
 
-// puzzle1.run();
-// puzzle2.run();
-// puzzle3.run();
-// puzzle4.run();
-// puzzle5.run();
-// puzzle6.run();
-// puzzle7.run();
-// puzzle8.run();
-// puzzle9.run();
-// puzzle10.run();
-// puzzle11.run();
-// puzzle12.run();
-// puzzle13.run();
-// puzzle14.run();
-// puzzle15.run();
-// puzzle16.run();
-// puzzle17.run();
-// puzzle18.run();
-// puzzle19.run();
-// puzzle20.run();
-puzzle21.run();
+async function start() {
+    // await puzzle1.run();
+    // await puzzle2.run();
+    // await puzzle3.run();
+    // await puzzle4.run();
+    // await puzzle5.run();
+    // await puzzle6.run();
+    // await puzzle7.run();
+    // await puzzle8.run();
+    // await puzzle9.run();
+    // await puzzle10.run();
+    // await puzzle11.run();
+    // await puzzle12.run();
+    // await puzzle13.run();
+    // await puzzle14.run();
+    // await puzzle15.run();
+    // await puzzle16.run();
+    // await puzzle17.run();
+    // await puzzle18.run();
+    // await puzzle19.run();
+    // await puzzle20.run();
+    // await puzzle21.run();
+    await puzzle22.run({
+        example: true,
+        mainProblem: true,
+    });
+}
+
+start();
