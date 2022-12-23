@@ -1,10 +1,11 @@
 import { Point } from '~/types/Point';
 
-export class Grid<T> {
-    private readonly grid: T[][] = [];
+export class Grid<T extends { toString: () => string }> {
+    private readonly grid: (T | undefined)[][] = [];
     private readonly minX: number;
     private readonly minY: number;
     private minXUpdated: number | undefined;
+    private blank: string;
 
     constructor({
         minX = 0,
@@ -12,22 +13,25 @@ export class Grid<T> {
         maxX,
         maxY,
         defaultValue,
+        blank = ' ',
     }: {
         minX?: number;
         minY?: number;
         maxX: number;
         maxY: number;
-        defaultValue: T;
+        defaultValue?: T;
+        blank?: string;
     }) {
         this.grid = Array.from({ length: maxY - minY + 1 }, () =>
             Array.from({ length: maxX - minX + 1 }, () => defaultValue)
         );
         this.minX = minX;
         this.minY = minY;
+        this.blank = blank;
     }
 
     getPoint(point: Point) {
-        return this.grid[point[1] - this.minY][point[0] - this.minX];
+        return this.grid[point[1] - this.minY]?.[point[0] - this.minX];
     }
 
     setPoint(point: Point, value: T) {
@@ -49,6 +53,7 @@ ${this.grid
         (row, y) =>
             `${(y + this.minY).toString().padStart(4, ' ')} ${row
                 .slice((this.minXUpdated ?? 0) > 0 ? this.minXUpdated : 0)
+                .map((d) => d?.toString?.() ?? this.blank)
                 .join('')}`
     )
     .join('\n')}

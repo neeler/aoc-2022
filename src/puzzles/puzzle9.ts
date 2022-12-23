@@ -1,36 +1,35 @@
+import { Point } from '~/types/Point';
 import { Puzzle } from './Puzzle';
 
 type Direction = 'R' | 'L' | 'U' | 'D';
-
-type Position = [number, number];
 
 interface Instruction {
     direction: Direction;
     count: number;
 }
 
-const positionDiffMap: Record<Direction, Position> = {
+const positionDiffMap: Record<Direction, Point> = {
     R: [1, 0],
     L: [-1, 0],
     U: [0, 1],
     D: [0, -1],
 };
 
-function positionKey(position: Position) {
+function positionKey(position: Point) {
     return position.join(':');
 }
 
-function add([x1, y1]: Position, [x2, y2]: Position): Position {
+function add([x1, y1]: Point, [x2, y2]: Point): Point {
     return [x1 + x2, y1 + y2];
 }
 
-function distance(position1: Position, position2: Position) {
+function distance(position1: Point, position2: Point) {
     return Math.sqrt(
         (position1[0] - position2[0]) ** 2 + (position1[1] - position2[1]) ** 2
     );
 }
 
-function getDiff(position1: Position, position2: Position): Position {
+function getDiff(position1: Point, position2: Point): Point {
     return [
         position1[0] === position2[0]
             ? 0
@@ -58,10 +57,10 @@ function analyzeInstructions({
         {
             length: nKnots,
         },
-        () => [0, 0] as Position
+        () => [0, 0] as Point
     );
-    const getHead = () => knotPositions[0] as Position;
-    const getTail = () => knotPositions[nKnots - 1] as Position;
+    const getHead = () => knotPositions[0] as Point;
+    const getTail = () => knotPositions[nKnots - 1] as Point;
     const positionsVisited: Record<string, boolean> = {
         [positionKey(getTail())]: true,
     };
@@ -71,8 +70,8 @@ function analyzeInstructions({
             knotPositions[0] = add(getHead(), positionDiff);
 
             for (let iKnot = 1; iKnot < nKnots; iKnot++) {
-                const leader = knotPositions[iKnot - 1] as Position;
-                const follower = knotPositions[iKnot] as Position;
+                const leader = knotPositions[iKnot - 1] as Point;
+                const follower = knotPositions[iKnot] as Point;
                 const dKnots = distance(leader, follower);
 
                 if (dKnots > sqrt2) {
