@@ -6,6 +6,7 @@ export class Grid<T extends { toString: () => string }> {
     private readonly minY: number;
     private minXUpdated: number | undefined;
     private blank: string;
+    private drawFn?: (data: T | undefined) => string;
 
     constructor({
         minX = 0,
@@ -14,6 +15,7 @@ export class Grid<T extends { toString: () => string }> {
         maxY,
         defaultValue,
         blank = ' ',
+        drawFn,
     }: {
         minX?: number;
         minY?: number;
@@ -21,6 +23,7 @@ export class Grid<T extends { toString: () => string }> {
         maxY: number;
         defaultValue?: T;
         blank?: string;
+        drawFn?: (data: T | undefined) => string;
     }) {
         this.grid = Array.from({ length: maxY - minY + 1 }, () =>
             Array.from({ length: maxX - minX + 1 }, () => defaultValue)
@@ -28,6 +31,7 @@ export class Grid<T extends { toString: () => string }> {
         this.minX = minX;
         this.minY = minY;
         this.blank = blank;
+        this.drawFn = drawFn;
     }
 
     getPoint(point: Point) {
@@ -53,7 +57,9 @@ ${this.grid
         (row, y) =>
             `${(y + this.minY).toString().padStart(4, ' ')} ${row
                 .slice((this.minXUpdated ?? 0) > 0 ? this.minXUpdated : 0)
-                .map((d) => d?.toString?.() ?? this.blank)
+                .map(
+                    (d, x) => this.drawFn?.(d) ?? d?.toString?.() ?? this.blank
+                )
                 .join('')}`
     )
     .join('\n')}
