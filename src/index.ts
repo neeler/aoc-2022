@@ -23,33 +23,35 @@ import {
     puzzle22,
     puzzle23,
     puzzle24,
+    puzzle25,
 } from '~/puzzles';
 
 async function start() {
-    // await puzzle1.run();
-    // await puzzle2.run();
-    // await puzzle3.run();
-    // await puzzle4.run();
-    // await puzzle5.run();
-    // await puzzle6.run();
-    // await puzzle7.run();
-    // await puzzle8.run();
-    // await puzzle9.run();
-    // await puzzle10.run();
-    // await puzzle11.run();
-    // await puzzle12.run();
-    // await puzzle13.run();
-    // await puzzle14.run();
-    // await puzzle15.run();
-    // await puzzle16.run();
-    // await puzzle17.run();
-    // await puzzle18.run();
-    // await puzzle19.run();
-    // await puzzle20.run();
-    // await puzzle21.run();
-    // await puzzle22.run();
-    // await puzzle23.run();
+    await puzzle1.run();
+    await puzzle2.run();
+    await puzzle3.run();
+    await puzzle4.run();
+    await puzzle5.run();
+    await puzzle6.run();
+    await puzzle7.run();
+    await puzzle8.run();
+    await puzzle9.run();
+    await puzzle10.run();
+    await puzzle11.run();
+    await puzzle12.run();
+    await puzzle13.run();
+    await puzzle14.run();
+    await puzzle15.run();
+    await puzzle16.run();
+    await puzzle17.run();
+    await puzzle18.run();
+    await puzzle19.run();
+    await puzzle20.run();
+    await puzzle21.run();
+    await puzzle22.run();
+    await puzzle23.run();
     await puzzle24.run();
+    await puzzle25.run();
 }
 
 start();
